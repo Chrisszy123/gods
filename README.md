@@ -1,33 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org) project for **Gods of the Stage** - A premium talent hunt platform with integrated Paystack payment processing.
 
-## Getting Started
+## 🚀 Quick Start
 
-First, run the development server:
+**New to the payment integration? Start here:**
+
+📖 **[QUICKSTART.md](./QUICKSTART.md)** - Get up and running in 5 minutes
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm add react-paystack nodemailer @types/nodemailer zod
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Configure Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy `.env.example` to `.env.local` and add your credentials:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env.local
+```
+
+Then edit `.env.local` with your Paystack and email credentials.
+
+### Run Development Server
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see the site.
+
+## 🎭 Features
+
+- ✅ **Beautiful Landing Page** - Mobile-first design with animations
+- ✅ **Payment Integration** - Secure Paystack payment processing
+- ✅ **Email Notifications** - Automatic confirmation emails
+- ✅ **Registration System** - Complete audition registration flow
+- ✅ **Payment Verification** - Server-side payment validation
+- ✅ **Professional UI** - Custom fonts and gradient designs
+
+## 📚 Documentation
+
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute setup guide
+- **[SETUP.md](./SETUP.md)** - Comprehensive setup documentation
+- **[API_REFERENCE.md](./API_REFERENCE.md)** - API endpoints reference
+
+## 🏗️ Project Structure
+
+```
+gods/
+├── app/
+│   ├── api/payment/          # Payment API routes
+│   ├── payment/callback/     # Payment callback page
+│   ├── page.tsx              # Main landing page
+│   └── layout.tsx            # Root layout
+├── components/
+│   └── PaymentModal.tsx      # Registration modal
+├── lib/
+│   └── email.ts              # Email utility
+├── public/                   # Static assets
+└── .env.local               # Environment variables (create this)
+```
+
+## 💳 Payment System
+
+**Amount:** ₦3,000 per registration
+
+**Provider:** Paystack (PCI-compliant, secure)
+
+**Flow:**
+1. User clicks "Audition Now"
+2. Fills registration form
+3. Pays via Paystack
+4. Receives confirmation email
+5. Registration complete
+
+## 🧪 Testing
+
+Use Paystack test cards:
+
+**Success:** `5060 6666 6666 6666 666` (CVV: 123)
+
+[More test cards](https://paystack.com/docs/payments/test-payments)
+
+## 🌍 Deployment
+
+Deploy on Vercel (recommended):
+
+```bash
+vercel
+```
+
+**Important:** Add environment variables in Vercel dashboard before deploying.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Paystack Documentation](https://paystack.com/docs)
+- [React Paystack](https://github.com/iamraphson/react-paystack)
 
 ## Deploy on Vercel
 

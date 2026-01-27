@@ -6,6 +6,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import localFont from "next/font/local";
 
+// Force dynamic rendering - don't pre-render this page at build time
+export const dynamic = 'force-dynamic';
+
 const cogsBolts = localFont({
   src: "../../fonts/cogs_and_bolts/cogs_and_bolts.ttf",
   variable: "--font-cogs",

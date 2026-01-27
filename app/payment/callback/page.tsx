@@ -1,7 +1,7 @@
 // app/payment/callback/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import localFont from "next/font/local";
@@ -34,7 +34,8 @@ interface PaymentData {
   reference: string;
 }
 
-export default function PaymentCallback() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function PaymentCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<PaymentStatus>("verifying");
@@ -219,5 +220,21 @@ export default function PaymentCallback() {
         </div>
       </motion.div>
     </main>
+  );
+}
+
+// Main component with Suspense boundary
+export default function PaymentCallback() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-[#febf53] border-t-transparent mb-6" />
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </main>
+    }>
+      <PaymentCallbackContent />
+    </Suspense>
   );
 }

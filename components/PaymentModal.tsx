@@ -359,10 +359,12 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                     required
                   >
                     <option value="">Select a category</option>
-                    <option value="vocalist">🎤 Vocalist</option>
-                    <option value="dancer">💃 Dancer</option>
-                    <option value="actor">🎭 Actor</option>
-                    <option value="performer">🔥 Live Performer</option>
+                    <option value="vocalist">🎤 Musician</option>
+                    <option value="dancer">💃 Dancers</option>
+                    <option value="actor">🎭 Creative Arts</option>
+                    <option value="comedian">😆 Comedy</option>
+                    <option value="poet">🗣️ Spoken Word & Poetry</option>
+                    <option value="other">🤝 Special Skills /others</option>
                   </select>
                 </div>
 

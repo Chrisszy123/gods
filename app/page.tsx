@@ -107,12 +107,12 @@ export default function Home() {
             >
               Audition Now
             </button>
-            <a
+            {/* <a
               href="#about"
               className={`${nexa.className} rounded-2xl border border-white/30 px-10 py-5 font-semibold backdrop-blur transition hover:bg-white hover:text-black`}
             >
               Watch the Journey
-            </a>
+            </a> */}
           </div>
         </motion.div>
       </section>
@@ -145,10 +145,12 @@ export default function Home() {
           >
             <div className="rounded-3xl bg-black p-6 sm:p-8">
               <ul className={`${nexa.className} space-y-3 text-gray-200`}>
-                <li>🎤 Vocalists</li>
+                <li>🎤 Musician</li>
                 <li>💃 Dancers</li>
-                <li>🎭 Actors</li>
-                <li>🔥 Live Performers</li>
+                <li>🎭 Creative Arts</li>
+                <li>😆 Comedy</li>
+                <li>🗣️ Spoken Word & Poetry</li>
+                <li>🤝Special Skills /others</li>
               </ul>
             </div>
           </motion.div>

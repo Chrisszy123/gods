@@ -25,11 +25,6 @@ display: "swap",
 export const metadata: Metadata = {
   title: "Gods of the Stage - Premium Talent Hunt",
   description: "Lights. Crowd. Power. This is not a competition, it's a coronation. Register now for the ultimate talent hunt experience.",
-  icons: {
-    icon: '/gods.png',
-    shortcut: '/gods.png',
-    apple: '/gods.png',
-  },
 };
 
 export default function RootLayout({

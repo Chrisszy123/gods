@@ -279,44 +279,49 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
             onClick={onClose}
           >
             <div
-              className={`${cogsBolts.variable} ${nexa.variable} bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-3xl p-8 max-w-md w-full relative font-[var(--font-nexa)]`}
+              className={`${cogsBolts.variable} ${nexa.variable} bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-2xl max-w-md w-full relative font-[var(--font-nexa)] my-auto max-h-[90vh] flex flex-col shadow-2xl`}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close button */}
-              <button
-                onClick={onClose}
-                className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              {/* Sticky header with close button - always visible */}
+              <div className="sticky top-0 z-10 flex items-start justify-end p-3 pb-0 bg-gradient-to-b from-zinc-900 to-transparent rounded-t-2xl shrink-0">
+                <button
+                  onClick={onClose}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition touch-manipulation"
+                  aria-label="Close"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
 
+              {/* Scrollable content */}
+              <div className="overflow-y-auto overscroll-contain px-5 pb-5 pt-1 flex-1 min-h-0">
               {/* Header */}
-              <div className="mb-6">
-                <h2 className={`${cogsBolts.className} text-2xl font-bold text-white mb-2`}>
+              <div className="mb-4">
+                <h2 className={`${cogsBolts.className} text-xl font-bold text-white mb-1`}>
                   Register for Audition
                 </h2>
-                <p className={`${nexa.className} text-gray-400 text-sm`}>
+                <p className={`${nexa.className} text-gray-400 text-xs`}>
                   Fill in your details to complete registration
                 </p>
                 
                 {/* Registration Type Tabs */}
-                <div className="mt-4 flex gap-2">
+                <div className="mt-3 flex gap-2">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, registrationType: "individual" })}
@@ -343,12 +348,12 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
 
                 {/* Pricing */}
                 {formData.registrationType === "individual" ? (
-                  <div className="mt-4">
-                    <div className="flex items-center gap-3">
-                      <span className={`${nexa.className} text-3xl font-bold text-[#febf53]`}>
+                  <div className="mt-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`${nexa.className} text-2xl font-bold text-[#febf53]`}>
                         ₦3,000
                       </span>
-                      <span className={`${nexa.className} text-lg text-gray-500 line-through`}>
+                      <span className={`${nexa.className} text-base text-gray-500 line-through`}>
                         ₦5,000
                       </span>
                       <span className={`${nexa.className} text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full`}>
@@ -357,48 +362,48 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                     </div>
                     
                     {/* Countdown Timer */}
-                    <div className="mt-3 bg-[#febf53]/10 border border-[#febf53]/30 rounded-xl p-3">
-                      <p className={`${nexa.className} text-xs text-[#febf53] mb-2`}>
+                    <div className="mt-2 bg-[#febf53]/10 border border-[#febf53]/30 rounded-lg p-2">
+                      <p className={`${nexa.className} text-[10px] text-[#febf53] mb-1`}>
                         ⏰ Special Offer Ends In:
                       </p>
-                      <div className="flex gap-2 justify-center">
-                        <div className="text-center">
-                          <div className={`${cogsBolts.className} text-xl text-white`}>
+                      <div className="flex gap-1 justify-center">
+                        <div className="text-center min-w-[2rem]">
+                          <div className={`${cogsBolts.className} text-base text-white`}>
                             {String(timeLeft.days).padStart(2, '0')}
                           </div>
-                          <div className={`${nexa.className} text-xs text-gray-400`}>Days</div>
+                          <div className={`${nexa.className} text-[10px] text-gray-400`}>Days</div>
                         </div>
-                        <div className={`${cogsBolts.className} text-xl text-white`}>:</div>
-                        <div className="text-center">
-                          <div className={`${cogsBolts.className} text-xl text-white`}>
+                        <div className={`${cogsBolts.className} text-base text-white`}>:</div>
+                        <div className="text-center min-w-[2rem]">
+                          <div className={`${cogsBolts.className} text-base text-white`}>
                             {String(timeLeft.hours).padStart(2, '0')}
                           </div>
-                          <div className={`${nexa.className} text-xs text-gray-400`}>Hours</div>
+                          <div className={`${nexa.className} text-[10px] text-gray-400`}>Hrs</div>
                         </div>
-                        <div className={`${cogsBolts.className} text-xl text-white`}>:</div>
-                        <div className="text-center">
-                          <div className={`${cogsBolts.className} text-xl text-white`}>
+                        <div className={`${cogsBolts.className} text-base text-white`}>:</div>
+                        <div className="text-center min-w-[2rem]">
+                          <div className={`${cogsBolts.className} text-base text-white`}>
                             {String(timeLeft.minutes).padStart(2, '0')}
                           </div>
-                          <div className={`${nexa.className} text-xs text-gray-400`}>Mins</div>
+                          <div className={`${nexa.className} text-[10px] text-gray-400`}>Min</div>
                         </div>
-                        <div className={`${cogsBolts.className} text-xl text-white`}>:</div>
-                        <div className="text-center">
-                          <div className={`${cogsBolts.className} text-xl text-white`}>
+                        <div className={`${cogsBolts.className} text-base text-white`}>:</div>
+                        <div className="text-center min-w-[2rem]">
+                          <div className={`${cogsBolts.className} text-base text-white`}>
                             {String(timeLeft.seconds).padStart(2, '0')}
                           </div>
-                          <div className={`${nexa.className} text-xs text-gray-400`}>Secs</div>
+                          <div className={`${nexa.className} text-[10px] text-gray-400`}>Sec</div>
                         </div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-4">
-                    <div className="flex items-center gap-3">
-                      <span className={`${nexa.className} text-3xl font-bold text-[#febf53]`}>
+                  <div className="mt-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`${nexa.className} text-2xl font-bold text-[#febf53]`}>
                         ₦5,000
                       </span>
-                      <span className={`${nexa.className} text-lg text-gray-500 line-through`}>
+                      <span className={`${nexa.className} text-base text-gray-500 line-through`}>
                         ₦10,000
                       </span>
                       <span className={`${nexa.className} text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full`}>
@@ -407,37 +412,37 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                     </div>
                     
                     {/* Countdown Timer for Group */}
-                    <div className="mt-3 bg-[#febf53]/10 border border-[#febf53]/30 rounded-xl p-3">
-                      <p className={`${nexa.className} text-xs text-[#febf53] mb-2`}>
+                    <div className="mt-2 bg-[#febf53]/10 border border-[#febf53]/30 rounded-lg p-2">
+                      <p className={`${nexa.className} text-[10px] text-[#febf53] mb-1`}>
                         ⏰ Special Offer Ends In:
                       </p>
-                      <div className="flex gap-2 justify-center">
-                        <div className="text-center">
-                          <div className={`${cogsBolts.className} text-xl text-white`}>
+                      <div className="flex gap-1 justify-center">
+                        <div className="text-center min-w-[2rem]">
+                          <div className={`${cogsBolts.className} text-base text-white`}>
                             {String(timeLeft.days).padStart(2, '0')}
                           </div>
-                          <div className={`${nexa.className} text-xs text-gray-400`}>Days</div>
+                          <div className={`${nexa.className} text-[10px] text-gray-400`}>Days</div>
                         </div>
-                        <div className={`${cogsBolts.className} text-xl text-white`}>:</div>
-                        <div className="text-center">
-                          <div className={`${cogsBolts.className} text-xl text-white`}>
+                        <div className={`${cogsBolts.className} text-base text-white`}>:</div>
+                        <div className="text-center min-w-[2rem]">
+                          <div className={`${cogsBolts.className} text-base text-white`}>
                             {String(timeLeft.hours).padStart(2, '0')}
                           </div>
-                          <div className={`${nexa.className} text-xs text-gray-400`}>Hours</div>
+                          <div className={`${nexa.className} text-[10px] text-gray-400`}>Hrs</div>
                         </div>
-                        <div className={`${cogsBolts.className} text-xl text-white`}>:</div>
-                        <div className="text-center">
-                          <div className={`${cogsBolts.className} text-xl text-white`}>
+                        <div className={`${cogsBolts.className} text-base text-white`}>:</div>
+                        <div className="text-center min-w-[2rem]">
+                          <div className={`${cogsBolts.className} text-base text-white`}>
                             {String(timeLeft.minutes).padStart(2, '0')}
                           </div>
-                          <div className={`${nexa.className} text-xs text-gray-400`}>Mins</div>
+                          <div className={`${nexa.className} text-[10px] text-gray-400`}>Min</div>
                         </div>
-                        <div className={`${cogsBolts.className} text-xl text-white`}>:</div>
-                        <div className="text-center">
-                          <div className={`${cogsBolts.className} text-xl text-white`}>
+                        <div className={`${cogsBolts.className} text-base text-white`}>:</div>
+                        <div className="text-center min-w-[2rem]">
+                          <div className={`${cogsBolts.className} text-base text-white`}>
                             {String(timeLeft.seconds).padStart(2, '0')}
                           </div>
-                          <div className={`${nexa.className} text-xs text-gray-400`}>Secs</div>
+                          <div className={`${nexa.className} text-[10px] text-gray-400`}>Sec</div>
                         </div>
                       </div>
                     </div>
@@ -446,15 +451,15 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3">
                 {/* Group Name Field (only for group registration) */}
                 {formData.registrationType === "group" && (
                   <div>
                     <label
                       htmlFor="groupName"
-                      className={`${nexa.className} block text-sm font-medium text-gray-300 mb-2`}
+                    className={`${nexa.className} block text-xs font-medium text-gray-300 mb-1`}
                     >
-                      Group Name *
+                    Group Name *
                     </label>
                     <input
                       type="text"
@@ -462,8 +467,8 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                       name="groupName"
                       value={formData.groupName}
                       onChange={handleInputChange}
-                      className={`${nexa.className} w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#febf53] transition`}
-                      placeholder="Enter your group name"
+                    className={`${nexa.className} w-full px-3 py-2.5 rounded-lg bg-black/50 border border-white/10 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#febf53] transition`}
+                    placeholder="Enter your group name"
                       required
                     />
                   </div>
@@ -472,7 +477,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                 <div>
                   <label
                     htmlFor="name"
-                    className={`${nexa.className} block text-sm font-medium text-gray-300 mb-2`}
+                    className={`${nexa.className} block text-xs font-medium text-gray-300 mb-1`}
                   >
                     {formData.registrationType === "group" ? "Contact Person Name *" : "Full Name *"}
                   </label>
@@ -482,7 +487,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className={`${nexa.className} w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#febf53] transition`}
+                    className={`${nexa.className} w-full px-3 py-2.5 rounded-lg bg-black/50 border border-white/10 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#febf53] transition`}
                     placeholder={formData.registrationType === "group" ? "Contact person's full name" : "Enter your full name"}
                     required
                   />
@@ -491,7 +496,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                 <div>
                   <label
                     htmlFor="email"
-                    className={`${nexa.className} block text-sm font-medium text-gray-300 mb-2`}
+                    className={`${nexa.className} block text-xs font-medium text-gray-300 mb-1`}
                   >
                     Email Address *
                   </label>
@@ -501,7 +506,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className={`${nexa.className} w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#febf53] transition`}
+                    className={`${nexa.className} w-full px-3 py-2.5 rounded-lg bg-black/50 border border-white/10 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#febf53] transition`}
                     placeholder="your.email@example.com"
                     required
                   />
@@ -510,7 +515,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                 <div>
                   <label
                     htmlFor="phone"
-                    className={`${nexa.className} block text-sm font-medium text-gray-300 mb-2`}
+                    className={`${nexa.className} block text-xs font-medium text-gray-300 mb-1`}
                   >
                     Phone Number *
                   </label>
@@ -520,7 +525,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className={`${nexa.className} w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#febf53] transition`}
+                    className={`${nexa.className} w-full px-3 py-2.5 rounded-lg bg-black/50 border border-white/10 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#febf53] transition`}
                     placeholder="08012345678"
                     required
                   />
@@ -529,7 +534,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                 <div>
                   <label
                     htmlFor="category"
-                    className={`${nexa.className} block text-sm font-medium text-gray-300 mb-2`}
+                    className={`${nexa.className} block text-xs font-medium text-gray-300 mb-1`}
                   >
                     Performance Category *
                   </label>
@@ -538,7 +543,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className={`${nexa.className} w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white focus:outline-none focus:border-[#febf53] transition`}
+                    className={`${nexa.className} w-full px-3 py-2.5 rounded-lg bg-black/50 border border-white/10 text-white text-sm focus:outline-none focus:border-[#febf53] transition`}
                     required
                   >
                     <option value="">Select a category</option>
@@ -552,7 +557,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                 </div>
 
                 {error && (
-                  <div className={`${nexa.className} bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-sm text-red-400`}>
+                  <div className={`${nexa.className} bg-red-500/10 border border-red-500/30 rounded-lg p-2 text-xs text-red-400`}>
                     {error}
                   </div>
                 )}
@@ -560,15 +565,16 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`${nexa.className} w-full rounded-xl bg-gradient-to-r from-[#febf53] to-[#d5421e] px-6 py-4 font-semibold text-black transition hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+                  className={`${nexa.className} w-full rounded-lg bg-gradient-to-r from-[#febf53] to-[#d5421e] px-4 py-3 text-sm font-semibold text-black transition hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                 >
                   {loading ? "Processing..." : "Proceed to Payment"}
                 </button>
               </form>
 
-              <p className={`${nexa.className} mt-4 text-xs text-gray-500 text-center`}>
+              <p className={`${nexa.className} mt-3 text-[10px] text-gray-500 text-center`}>
                 Secure payment powered by Paystack
               </p>
+              </div>
             </div>
           </motion.div>
         </>

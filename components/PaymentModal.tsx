@@ -1,9 +1,8 @@
 // components/PaymentModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PaystackButton } from "react-paystack";
 import localFont from "next/font/local";
 
 // Brand fonts
@@ -35,7 +34,7 @@ interface FormData {
   name: string;
   email: string;
   phone: string;
-  category: "vocalist" | "dancer" | "actor" | "performer" | "";
+  category: "musician" | "dancers" | "creative_arts" | "comedian" | "spoken_word_and_poetry" | "special_skills" | "";
   groupName?: string;
 }
 
@@ -50,9 +49,8 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [paymentConfig, setPaymentConfig] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentReference, setPaymentReference] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -60,9 +58,17 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
     seconds: 0,
   });
 
-  // Ensure we're on the client side
+  // Ensure we're on the client side and load Paystack script
   useEffect(() => {
     setIsClient(true);
+    
+    // Load Paystack inline script if not already loaded
+    if (typeof window !== 'undefined' && !(window as any).PaystackPop) {
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   // Countdown timer - Fixed end date for special offer
@@ -103,9 +109,8 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
         category: "",
         groupName: "",
       });
-      setPaymentConfig(null);
+      setPaymentReference(null);
       setLoading(false);
-      setIsSubmitting(false);
       setError("");
     }
   }, [isOpen]);
@@ -149,36 +154,60 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
     return formData.registrationType === "individual" ? 300000 : 500000; // ₦3,000 or ₦5,000 in kobo
   };
 
+  // Open Paystack popup directly using the inline script
+  const openPaystackPopup = useCallback((reference: string) => {
+    // Access the Paystack global from the inline script
+    const PaystackPop = (window as any).PaystackPop;
+    
+    if (!PaystackPop) {
+      setError("Payment service not available. Please refresh and try again.");
+      setLoading(false);
+      return;
+    }
+
+    const handler = PaystackPop.setup({
+      key: publicKey,
+      email: formData.email,
+      amount: getAmount(),
+      ref: reference,
+      onClose: () => {
+        console.log("Payment popup closed");
+        setLoading(false);
+        setPaymentReference(null);
+      },
+      callback: (response: any) => {
+        console.log("Payment successful!", response);
+        window.location.href = `/payment/callback?reference=${response.reference}`;
+      },
+    });
+    
+    handler.openIframe();
+    setLoading(false);
+  }, [publicKey, formData.email, getAmount]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Prevent multiple submissions
-    if (isSubmitting || loading) {
-      console.log("Already submitting, ignoring...");
+    if (loading) {
+      console.log("Already processing, ignoring...");
       return;
     }
     
-    console.log("Form submitted", formData);
-    
     if (!validateForm()) {
-      console.log("Form validation failed");
       return;
     }
 
     if (!publicKey) {
       setError("Paystack public key is not configured. Please check your .env.local file.");
-      console.error("Missing Paystack public key");
       return;
     }
 
-    setIsSubmitting(true);
     setLoading(true);
     setError("");
 
     try {
-      console.log("Initializing payment...");
-      
-      // Initialize payment
+      // Initialize payment on backend
       const response = await fetch("/api/payment/initialize", {
         method: "POST",
         headers: {
@@ -186,65 +215,20 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
         },
         body: JSON.stringify(formData),
       });
-
-      console.log("API Response status:", response.status);
       
       const data = await response.json();
-      console.log("API Response data:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to initialize payment");
       }
 
-      // Set up Paystack config
-      const config = {
-        reference: data.data.reference,
-        email: formData.email,
-        amount: getAmount(),
-        publicKey: publicKey,
-        text: "Pay Now",
-        metadata: {
-          name: formData.name,
-          phone: formData.phone,
-          category: formData.category,
-          registrationType: formData.registrationType,
-          ...(formData.registrationType === "group" && { groupName: formData.groupName }),
-        },
-        onSuccess: (reference: any) => {
-          console.log("Payment successful!", reference);
-          setIsSubmitting(false);
-          // Redirect to callback page
-          window.location.href = `/payment/callback?reference=${reference.reference}`;
-        },
-        onClose: () => {
-          console.log("Payment popup closed");
-          setLoading(false);
-          setIsSubmitting(false);
-        },
-      };
+      // Open Paystack popup directly
+      setPaymentReference(data.data.reference);
+      openPaystackPopup(data.data.reference);
       
-      console.log("Setting payment config:", config);
-      setPaymentConfig(config);
-
-      // Trigger the Paystack button click programmatically after config is set
-      setTimeout(() => {
-        const paystackBtn = document.querySelector(".paystack-button") as HTMLButtonElement;
-        console.log("Paystack button element:", paystackBtn);
-        if (paystackBtn) {
-          console.log("Clicking Paystack button...");
-          paystackBtn.click();
-          setLoading(false);
-        } else {
-          console.error("Paystack button not found!");
-          setError("Payment initialization failed. Please try again.");
-          setLoading(false);
-          setIsSubmitting(false);
-        }
-      }, 300);
     } catch (err) {
       console.error("Payment error:", err);
       setLoading(false);
-      setIsSubmitting(false);
       setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
@@ -558,12 +542,12 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                     required
                   >
                     <option value="">Select a category</option>
-                    <option value="vocalist">🎤 Musician</option>
-                    <option value="dancer">💃 Dancers</option>
-                    <option value="actor">🎭 Creative Arts</option>
+                    <option value="musician">🎤 Musician</option>
+                    <option value="dancers">💃 Dancers</option>
+                    <option value="creative_arts">🎭 Creative Arts</option>
                     <option value="comedian">😆 Comedy</option>
-                    <option value="poet">🗣️ Spoken Word & Poetry</option>
-                    <option value="other">🤝 Special Skills /others</option>
+                    <option value="spoken_word_and_poetry">🗣️ Spoken Word & Poetry</option>
+                    <option value="special_skills">🤝 Special Skills /others</option>
                   </select>
                 </div>
 
@@ -575,21 +559,11 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
 
                 <button
                   type="submit"
-                  disabled={loading || isSubmitting}
+                  disabled={loading}
                   className={`${nexa.className} w-full rounded-xl bg-gradient-to-r from-[#febf53] to-[#d5421e] px-6 py-4 font-semibold text-black transition hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                 >
                   {loading ? "Processing..." : "Proceed to Payment"}
                 </button>
-
-                {/* Hidden Paystack Button */}
-                {paymentConfig && (
-                  <div style={{ display: 'none' }}>
-                    <PaystackButton
-                      {...paymentConfig}
-                      className="paystack-button"
-                    />
-                  </div>
-                )}
               </form>
 
               <p className={`${nexa.className} mt-4 text-xs text-gray-500 text-center`}>

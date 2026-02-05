@@ -24,9 +24,9 @@ export async function sendConfirmationEmail({
 }: SendEmailParams) {
   try {
     const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'Gods of the Stage <onboarding@resend.dev>',
-      to: [to],
-      subject: '🎭 Registration Confirmed - Gods of the Stage',
+      from: process.env.EMAIL_FROM || 'Gods of the Stage <register@godsofthestage.com>',
+      to: to,
+      subject: 'Registration Confirmed - Gods of the Stage',
       html: `
       <!DOCTYPE html>
       <html>
@@ -210,8 +210,6 @@ Important: Save this email for your records. You'll need your reference number f
       console.error('Resend error:', error);
       throw error;
     }
-
-    console.log('Email sent successfully:', data?.id);
     return { success: true, messageId: data?.id };
   } catch (error) {
     console.error('Email error:', error);

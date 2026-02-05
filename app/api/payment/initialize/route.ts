@@ -7,7 +7,7 @@ const paymentSchema = z.object({
   email: z.string().email(),
   name: z.string().min(2),
   phone: z.string().min(10),
-  category: z.enum(['vocalist', 'dancer', 'actor', 'performer']),
+  category: z.enum(['musician', 'dancers', 'creative_arts', 'comedian', 'spoken_word_and_poetry', 'special_skills']),
   groupName: z.string().optional(),
 });
 

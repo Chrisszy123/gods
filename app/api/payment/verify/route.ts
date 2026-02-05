@@ -40,29 +40,33 @@ export async function GET(request: NextRequest) {
     }
 
     // Payment successful - extract data
-    const {
-      email,
-      amount,
-      reference: paymentRef,
-      metadata,
-    } = data.data;
+    const transactionData = data.data;
+    
+    // Email can be in different places in Paystack response
+    const email = transactionData.customer?.email || transactionData.email;
+    const amount = transactionData.amount;
+    const paymentRef = transactionData.reference;
+    const metadata = transactionData.metadata || {};
 
     const { name, phone, category, registrationType, groupName } = metadata;
-
-    // Send confirmation email
-    try {
-      await sendConfirmationEmail({
-        to: email,
-        name,
-        reference: paymentRef,
-        amount,
-        category,
-        registrationType,
-        groupName,
-      });
-    } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
-      // Don't fail the whole request if email fails
+    // Send confirmation email only if we have an email
+    if (email) {
+      try {
+        await sendConfirmationEmail({
+          to: email,
+          name: name || 'Participant',
+          reference: paymentRef,
+          amount,
+          category: category || 'Not specified',
+          registrationType,
+          groupName,
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't fail the whole request if email fails
+      }
+    } else {
+      console.error('No email found in transaction data');
     }
 
     return NextResponse.json({
@@ -70,15 +74,15 @@ export async function GET(request: NextRequest) {
       verified: true,
       message: 'Payment verified successfully',
       data: {
-        email,
-        name,
-        phone,
-        category,
-        registrationType,
-        groupName,
+        email: email || '',
+        name: name || 'Participant',
+        phone: phone || '',
+        category: category || '',
+        registrationType: registrationType || 'individual',
+        groupName: groupName || '',
         amount: amount / 100, // Convert from kobo to naira
         reference: paymentRef,
-        paid_at: data.data.paid_at,
+        paid_at: transactionData.paid_at,
       },
     });
   } catch (error) {

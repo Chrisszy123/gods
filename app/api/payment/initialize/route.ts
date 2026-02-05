@@ -3,10 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const paymentSchema = z.object({
+  registrationType: z.enum(['individual', 'group']),
   email: z.string().email(),
   name: z.string().min(2),
   phone: z.string().min(10),
   category: z.enum(['vocalist', 'dancer', 'actor', 'performer']),
+  groupName: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -14,7 +16,48 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = paymentSchema.parse(body);
 
-    const { email, name, phone, category } = validatedData;
+    const { email, name, phone, category, registrationType, groupName } = validatedData;
+
+    // Calculate amount based on registration type (Special offer prices)
+    // Individual: ₦3,000 (300000 kobo) - Special offer from ₦5,000
+    // Group: ₦5,000 (500000 kobo) - Special offer from ₦10,000
+    const amount = registrationType === 'individual' ? 300000 : 500000;
+
+    // Build custom fields array
+    const customFields = [
+      {
+        display_name: 'Registration Type',
+        variable_name: 'registration_type',
+        value: registrationType === 'individual' ? 'Individual' : 'Group',
+      },
+    ];
+
+    // Add group name if group registration
+    if (registrationType === 'group' && groupName) {
+      customFields.push({
+        display_name: 'Group Name',
+        variable_name: 'group_name',
+        value: groupName,
+      });
+    }
+
+    customFields.push(
+      {
+        display_name: registrationType === 'group' ? 'Contact Person' : 'Full Name',
+        variable_name: 'name',
+        value: name,
+      },
+      {
+        display_name: 'Phone Number',
+        variable_name: 'phone',
+        value: phone,
+      },
+      {
+        display_name: 'Category',
+        variable_name: 'category',
+        value: category,
+      }
+    );
 
     // Initialize Paystack payment
     const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -25,29 +68,15 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         email,
-        amount: 300000, // ₦3000 in kobo (Paystack uses kobo)
+        amount,
         currency: 'NGN',
         metadata: {
           name,
           phone,
           category,
-          custom_fields: [
-            {
-              display_name: 'Full Name',
-              variable_name: 'name',
-              value: name,
-            },
-            {
-              display_name: 'Phone Number',
-              variable_name: 'phone',
-              value: phone,
-            },
-            {
-              display_name: 'Category',
-              variable_name: 'category',
-              value: category,
-            },
-          ],
+          registrationType,
+          ...(groupName && { groupName }),
+          custom_fields: customFields,
         },
         callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/callback`,
       }),

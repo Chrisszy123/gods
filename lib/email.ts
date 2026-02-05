@@ -1,5 +1,5 @@
 // lib/email.ts
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 interface SendEmailParams {
   to: string;
@@ -7,17 +7,11 @@ interface SendEmailParams {
   reference: string;
   amount: number;
   category: string;
+  registrationType?: string;
+  groupName?: string;
 }
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT || '587'),
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendConfirmationEmail({
   to,
@@ -25,12 +19,15 @@ export async function sendConfirmationEmail({
   reference,
   amount,
   category,
+  registrationType,
+  groupName,
 }: SendEmailParams) {
-  const mailOptions = {
-    from: process.env.EMAIL_FROM,
-    to,
-    subject: '🎭 Registration Confirmed - Gods of the Stage',
-    html: `
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'Gods of the Stage <onboarding@resend.dev>',
+      to: [to],
+      subject: '🎭 Registration Confirmed - Gods of the Stage',
+      html: `
       <!DOCTYPE html>
       <html>
         <head>
@@ -126,7 +123,17 @@ export async function sendConfirmationEmail({
               <div class="info-box">
                 <h3 style="margin-top: 0; color: #d5421e;">Registration Details</h3>
                 <div class="info-row">
-                  <span class="label">Name:</span>
+                  <span class="label">Registration Type:</span>
+                  <span class="value">${registrationType === 'group' ? 'Group' : 'Individual'}</span>
+                </div>
+                ${groupName ? `
+                <div class="info-row">
+                  <span class="label">Group Name:</span>
+                  <span class="value">${groupName}</span>
+                </div>
+                ` : ''}
+                <div class="info-row">
+                  <span class="label">${registrationType === 'group' ? 'Contact Person:' : 'Name:'}</span>
                   <span class="value">${name}</span>
                 </div>
                 <div class="info-row">
@@ -171,7 +178,7 @@ export async function sendConfirmationEmail({
         </body>
       </html>
     `,
-    text: `
+      text: `
 Gods of the Stage - Registration Confirmed!
 
 Welcome, ${name}!
@@ -179,7 +186,9 @@ Welcome, ${name}!
 Your registration for Gods of the Stage has been successfully confirmed.
 
 Registration Details:
-- Name: ${name}
+- Registration Type: ${registrationType === 'group' ? 'Group' : 'Individual'}
+${groupName ? `- Group Name: ${groupName}` : ''}
+- ${registrationType === 'group' ? 'Contact Person' : 'Name'}: ${name}
 - Email: ${to}
 - Category: ${category.charAt(0).toUpperCase() + category.slice(1)}
 - Amount Paid: ₦${(amount / 100).toLocaleString()}
@@ -195,26 +204,32 @@ Important: Save this email for your records. You'll need your reference number f
 
 © ${new Date().getFullYear()} Gods of the Stage. All rights reserved.
     `,
-  };
+    });
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    if (error) {
+      console.error('Resend error:', error);
+      throw error;
+    }
+
+    console.log('Email sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
   } catch (error) {
     console.error('Email error:', error);
     throw error;
   }
 }
 
-// Verify email configuration
+// Verify Resend API key configuration
 export async function verifyEmailConfig() {
   try {
-    await transporter.verify();
-    console.log('Email server is ready to send messages');
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not configured');
+      return false;
+    }
+    console.log('Resend API key is configured');
     return true;
   } catch (error) {
-    console.error('Email server verification failed:', error);
+    console.error('Email configuration verification failed:', error);
     return false;
   }
 }

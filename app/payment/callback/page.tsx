@@ -32,6 +32,8 @@ interface PaymentData {
   category: string;
   amount: number;
   reference: string;
+  registrationType?: string;
+  groupName?: string;
 }
 
 // Component that uses useSearchParams - must be wrapped in Suspense
@@ -130,7 +132,17 @@ function PaymentCallbackContent() {
                 </h2>
                 <div className={`${nexa.className} space-y-3 text-sm`}>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Name:</span>
+                    <span className="text-gray-400">Registration Type:</span>
+                    <span className="font-semibold capitalize">{paymentData.registrationType || 'Individual'}</span>
+                  </div>
+                  {paymentData.groupName && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Group Name:</span>
+                      <span className="font-semibold">{paymentData.groupName}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">{paymentData.registrationType === 'group' ? 'Contact Person:' : 'Name:'}</span>
                     <span className="font-semibold">{paymentData.name}</span>
                   </div>
                   <div className="flex justify-between">

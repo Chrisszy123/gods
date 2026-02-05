@@ -97,7 +97,7 @@ export default function Home() {
           </motion.h1>
 
           <p className={`${nexa.className} mt-6 text-base sm:text-lg md:text-xl text-gray-200`}>
-            Lights. Crowd. Power. This is not a competition, it’s a coronation.
+            Win <span className="text-[#febf53] font-bold">₦5,000,000</span> and claim the <span className="text-[#febf53] font-bold">god title</span>. This isn't a competition—it's a coronation.
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row justify-center gap-5">
@@ -212,6 +212,16 @@ export default function Home() {
           >
             Apply Now
           </button>
+          
+          {/* Powered by Nombrz */}
+          <div className="mt-6 flex items-center justify-center gap-2 opacity-70">
+            <span className={`${nexa.className} text-xs text-gray-400`}>Powered by</span>
+            <img 
+              src="/nombrz.png" 
+              alt="Nombrz" 
+              className="h-4 object-contain"
+            />
+          </div>
         </motion.div>
       </section>
 

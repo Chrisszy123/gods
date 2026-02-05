@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       metadata,
     } = data.data;
 
-    const { name, phone, category } = metadata;
+    const { name, phone, category, registrationType, groupName } = metadata;
 
     // Send confirmation email
     try {
@@ -57,6 +57,8 @@ export async function GET(request: NextRequest) {
         reference: paymentRef,
         amount,
         category,
+        registrationType,
+        groupName,
       });
     } catch (emailError) {
       console.error('Failed to send confirmation email:', emailError);
@@ -72,6 +74,8 @@ export async function GET(request: NextRequest) {
         name,
         phone,
         category,
+        registrationType,
+        groupName,
         amount: amount / 100, // Convert from kobo to naira
         reference: paymentRef,
         paid_at: data.data.paid_at,

@@ -62,41 +62,41 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
   useEffect(() => {
     setIsClient(true);
     
-    // Load Paystack inline script if not already loaded
-    if (typeof window !== 'undefined' && !(window as any).PaystackPop) {
-      const script = document.createElement('script');
-      script.src = 'https://js.paystack.co/v1/inline.js';
-      script.async = true;
-      document.body.appendChild(script);
-    }
+    // // Load Paystack inline script if not already loaded
+    // if (typeof window !== 'undefined' && !(window as any).PaystackPop) {
+    //   const script = document.createElement('script');
+    //   script.src = 'https://js.paystack.co/v1/inline.js';
+    //   script.async = true;
+    //   document.body.appendChild(script);
+    // }
   }, []);
 
   // Countdown timer - Fixed end date for special offer
-  useEffect(() => {
-    // Set fixed end date: January 30, 2026 at 23:59:59 (UTC+1 WAT)
-    // Change this date when you want to extend or end the offer
-    const endDate = new Date('2026-02-08T23:59:59+01:00');
+  // useEffect(() => {
+  //   // Set fixed end date: January 30, 2026 at 23:59:59 (UTC+1 WAT)
+  //   // Change this date when you want to extend or end the offer
+  //   const endDate = new Date('2026-02-08T23:59:59+01:00');
     
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = endDate.getTime() - now;
+  //   const timer = setInterval(() => {
+  //     const now = new Date().getTime();
+  //     const distance = endDate.getTime() - now;
 
-      if (distance < 0) {
-        clearInterval(timer);
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
+  //     if (distance < 0) {
+  //       clearInterval(timer);
+  //       setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  //       return;
+  //     }
 
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      });
-    }, 1000);
+  //     setTimeLeft({
+  //       days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+  //       hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+  //       minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+  //       seconds: Math.floor((distance % (1000 * 60)) / 1000),
+  //     });
+  //   }, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+  //   return () => clearInterval(timer);
+  // }, []);
 
   // Reset state when modal closes
   useEffect(() => {
@@ -151,87 +151,72 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
 
   // Get amount based on registration type (Special offer prices during countdown)
   const getAmount = () => {
-    return formData.registrationType === "individual" ? 300000 : 500000; // ₦3,000 or ₦5,000 in kobo
+    return formData.registrationType === "individual" ? 500000 : 1000000; // ₦5,000 or ₦10,000 in kobo
   };
 
   // Open Paystack popup directly using the inline script
-  const openPaystackPopup = useCallback((reference: string) => {
-    // Access the Paystack global from the inline script
-    const PaystackPop = (window as any).PaystackPop;
+  // const openPaystackPopup = useCallback((reference: string) => {
+  //   // Access the Paystack global from the inline script
+  //   const PaystackPop = (window as any).PaystackPop;
     
-    if (!PaystackPop) {
-      setError("Payment service not available. Please refresh and try again.");
-      setLoading(false);
-      return;
-    }
+  //   if (!PaystackPop) {
+  //     setError("Payment service not available. Please refresh and try again.");
+  //     setLoading(false);
+  //     return;
+  //   }
 
-    const handler = PaystackPop.setup({
-      key: publicKey,
-      email: formData.email,
-      amount: getAmount(),
-      ref: reference,
-      onClose: () => {
-        console.log("Payment popup closed");
-        setLoading(false);
-        setPaymentReference(null);
-      },
-      callback: (response: any) => {
-        console.log("Payment successful!", response);
-        window.location.href = `/payment/callback?reference=${response.reference}`;
-      },
-    });
+  //   const handler = PaystackPop.setup({
+  //     key: publicKey,
+  //     email: formData.email,
+  //     amount: getAmount(),
+  //     ref: reference,
+  //     onClose: () => {
+  //       console.log("Payment popup closed");
+  //       setLoading(false);
+  //       setPaymentReference(null);
+  //     },
+  //     callback: (response: any) => {
+  //       console.log("Payment successful!", response);
+  //       window.location.href = `/payment/callback?reference=${response.reference}`;
+  //     },
+  //   });
     
-    handler.openIframe();
-    setLoading(false);
-  }, [publicKey, formData.email, getAmount]);
+  //   handler.openIframe();
+  //   setLoading(false);
+  // }, [publicKey, formData.email, getAmount]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Prevent multiple submissions
-    if (loading) {
-      console.log("Already processing, ignoring...");
-      return;
-    }
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    if (!publicKey) {
-      setError("Paystack public key is not configured. Please check your .env.local file.");
-      return;
-    }
-
+  
+    if (loading) return;
+    if (!validateForm()) return;
+  
     setLoading(true);
     setError("");
-
+  
     try {
-      // Initialize payment on backend
       const response = await fetch("/api/payment/initialize", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      
+  
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to initialize payment");
+  
+      if (!response.ok || !data?.data?.authorization_url) {
+        throw new Error(data?.details || "Failed to initialize payment");
       }
-
-      // Open Paystack popup directly
-      setPaymentReference(data.data.reference);
-      openPaystackPopup(data.data.reference);
-      
+  
+      // ✅ CORRECT FLOW — REDIRECT ONLY
+      window.location.href = data.data.authorization_url;
+  
     } catch (err) {
       console.error("Payment error:", err);
-      setLoading(false);
       setError(err instanceof Error ? err.message : "An error occurred");
+      setLoading(false);
     }
   };
+  
 
   // Don't render until we're on the client
   if (!isClient) {
@@ -351,18 +336,18 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                   <div className="mt-3">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`${nexa.className} text-2xl font-bold text-[#febf53]`}>
-                        ₦3,000
+                        ₦5,000
                       </span>
-                      <span className={`${nexa.className} text-base text-gray-500 line-through`}>
+                      {/* <span className={`${nexa.className} text-base text-gray-500 line-through`}>
                         ₦5,000
                       </span>
                       <span className={`${nexa.className} text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full`}>
                         40% OFF
-                      </span>
+                      </span> */}
                     </div>
                     
                     {/* Countdown Timer */}
-                    <div className="mt-2 bg-[#febf53]/10 border border-[#febf53]/30 rounded-lg p-2">
+                    {/* <div className="mt-2 bg-[#febf53]/10 border border-[#febf53]/30 rounded-lg p-2">
                       <p className={`${nexa.className} text-[10px] text-[#febf53] mb-1`}>
                         ⏰ Special Offer Ends In:
                       </p>
@@ -395,24 +380,24 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                           <div className={`${nexa.className} text-[10px] text-gray-400`}>Sec</div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 ) : (
                   <div className="mt-3">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`${nexa.className} text-2xl font-bold text-[#febf53]`}>
-                        ₦5,000
+                        ₦10,000
                       </span>
-                      <span className={`${nexa.className} text-base text-gray-500 line-through`}>
+                      {/* <span className={`${nexa.className} text-base text-gray-500 line-through`}>
                         ₦10,000
                       </span>
                       <span className={`${nexa.className} text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full`}>
                         50% OFF
-                      </span>
+                      </span> */}
                     </div>
                     
                     {/* Countdown Timer for Group */}
-                    <div className="mt-2 bg-[#febf53]/10 border border-[#febf53]/30 rounded-lg p-2">
+                    {/* <div className="mt-2 bg-[#febf53]/10 border border-[#febf53]/30 rounded-lg p-2">
                       <p className={`${nexa.className} text-[10px] text-[#febf53] mb-1`}>
                         ⏰ Special Offer Ends In:
                       </p>
@@ -445,7 +430,7 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
                           <div className={`${nexa.className} text-[10px] text-gray-400`}>Sec</div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 )}
               </div>

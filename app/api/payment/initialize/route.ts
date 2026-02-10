@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Calculate amount based on registration type (Special offer prices)
     // Individual: ₦3,000 (300000 kobo) - Special offer from ₦5,000
     // Group: ₦5,000 (500000 kobo) - Special offer from ₦10,000
-    const amount = registrationType === 'individual' ? 300000 : 500000;
+    const amount = registrationType === 'individual' ? 500000 : 1000000;
 
     // Build custom fields array
     const customFields = [

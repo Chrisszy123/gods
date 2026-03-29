@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
 import localFont from "next/font/local";
+import MetaPixel from "@/components/MetaPixel";
 
 
 // === BRAND FONTS ===
@@ -37,6 +37,7 @@ export default function RootLayout({
       <body
         className={`${cogsBolts.variable} ${nexa.variable} antialiased`}
       >
+        <MetaPixel />
         {children}
       </body>
     </html>

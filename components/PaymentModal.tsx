@@ -1,9 +1,10 @@
 // components/PaymentModal.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import localFont from "next/font/local";
+import { trackLead, trackInitiateCheckout } from "@/lib/pixel";
 
 // Brand fonts
 const cogsBolts = localFont({
@@ -98,9 +99,11 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
   //   return () => clearInterval(timer);
   // }, []);
 
-  // Reset state when modal closes
+  // Fire Lead event when modal opens
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      trackLead();
+    } else {
       setFormData({
         registrationType: "individual",
         name: "",
@@ -207,6 +210,9 @@ export default function PaymentModal({ isOpen, onClose, publicKey }: PaymentModa
         throw new Error(data?.details || "Failed to initialize payment");
       }
   
+      // Fire InitiateCheckout before redirecting to Paystack
+      trackInitiateCheckout(getAmount(), formData.registrationType);
+
       // ✅ CORRECT FLOW — REDIRECT ONLY
       window.location.href = data.data.authorization_url;
   

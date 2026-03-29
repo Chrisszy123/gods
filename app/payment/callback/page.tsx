@@ -5,6 +5,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import localFont from "next/font/local";
+import { trackPurchase } from "@/lib/pixel";
 
 // Force dynamic rendering - don't pre-render this page at build time
 export const dynamic = 'force-dynamic';
@@ -62,6 +63,7 @@ function PaymentCallbackContent() {
         if (data.verified && data.status) {
           setStatus("success");
           setPaymentData(data.data);
+          trackPurchase(data.data.amount, data.data.reference, data.data.registrationType);
         } else {
           setStatus("failed");
           setError(data.error || "Payment verification failed");
